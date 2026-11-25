@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>RSVP replies · Sweekruti &amp; Siddhanth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--maroon:#4b1519;--ink:#3b1f1b;--gold:#b4853a;--gold-dk:#8a5d22;--muted:#7a5d4b;--line:rgba(180,133,58,.35)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Source Sans 3',sans-serif;color:var(--ink);background:#efe7da url(assets/paper.jpg) center/cover fixed;min-height:100vh}
+  .wrap{max-width:980px;margin:0 auto;padding:28px 16px 48px}
+  h1{font:500 26px 'Cinzel';color:var(--maroon);text-align:center;letter-spacing:1px}
+  .sub{text-align:center;color:var(--muted);margin-top:4px;font-size:15px}
+  .card{background:rgba(251,247,239,.92);border:1px solid var(--line);border-radius:14px;padding:18px;margin-top:20px}
+  .login{max-width:360px;margin:40px auto 0}
+  label{display:block;font-weight:600;color:var(--maroon);margin-bottom:6px}
+  input{width:100%;font:400 16px 'Source Sans 3';padding:11px 12px;border:1.5px solid rgba(180,133,58,.55);border-radius:10px;background:#fff;color:var(--ink)}
+  input:focus{outline:none;border-color:var(--gold-dk);box-shadow:0 0 0 3px rgba(201,160,79,.25)}
+  button{font:700 15px 'Source Sans 3';border-radius:999px;padding:11px 18px;cursor:pointer;border:1.5px solid var(--gold-dk);
+     background:linear-gradient(180deg,#c9a04f,#9c6e28);color:#fff8ea}
+  button.ghost{background:transparent;color:var(--maroon);border-color:var(--gold)}
+  .login button{width:100%;margin-top:12px}
+  .err{color:#a3162a;font-size:14px;margin-top:8px;min-height:1em}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .stat{background:rgba(251,247,239,.92);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .stat b{display:block;font:700 30px 'Source Sans 3';color:var(--maroon);font-variant-numeric:tabular-nums}
+  .stat span{font-size:13px;color:var(--muted)}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+  .tools input{flex:1;min-width:180px}
+  .diet{margin-top:12px;font-size:14px;color:var(--muted)}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th{text-align:left;font-weight:600;color:var(--maroon);padding:8px 10px;border-bottom:1.5px solid var(--gold);white-space:nowrap}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  td.n{text-align:right;font-variant-numeric:tabular-nums}
+  .tag{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+  .yes{background:#e9f2df;color:#2f5a12}.no{background:#f6e3e3;color:#7a1f1f}
+  .msg{color:var(--muted);font-size:13.5px;max-width:280px}
+  .scroll{overflow-x:auto}
+  .empty{text-align:center;color:var(--muted);padding:24px}
+  .when{color:var(--muted);font-size:13px;white-space:nowrap}
+  @media (max-width:640px){
+    .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tr{border-bottom:1px solid var(--line);padding:10px 0}
+    td{border:0;padding:2px 0}
+    td.n{text-align:left}
+    td[data-k]::before{content:attr(data-k) ": ";color:var(--muted);font-weight:600}
+    .msg{max-width:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RSVP replies</h1>
+  <p class="sub">Engagement · 10th December 2026</p>
+
+  <form class="card login" id="login">
+    <label for="pw">Password</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <button type="submit">See replies</button>
+    <p class="err" id="loginErr" role="alert"></p>
+  </form>
+
+  <section id="app" hidden>
+    <div class="stats" style="margin-top:20px">
+      <div class="stat"><b id="sGuests">0</b><span>Guests coming</span></div>
+      <div class="stat"><b id="sYes">0</b><span>Replies: attending</span></div>
+      <div class="stat"><b id="sNo">0</b><span>Replies: declined</span></div>
+      <div class="stat"><b id="sAll">0</b><span>Replies in total</span></div>
+    </div>
+    <p class="diet" id="dietSummary"></p>
+    <div class="tools">
+      <input id="q" type="search" placeholder="Search by name or phone" aria-label="Search replies">
+      <button class="ghost" type="button" id="refresh">Refresh</button>
+      <button type="button" id="csv">Download CSV</button>
+    </div>
+    <div class="card scroll">
+      <table>
+        <thead><tr><th>Name</th><th>Phone</th><th>Reply</th><th>Guests</th><th>Food</th><th>Message</th><th>Updated</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const SUPABASE_URL = 'https://reikygaktingpoworigo.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_at4oHM7xUcFk-1tckqBw6w_WeuYj_rx';
+  const DIET = { none: '', veg: 'Veg', 'non-veg': 'Non-veg' };
+  const $ = id => document.getElementById(id);
+  let password = '', data = null;
+  try { password = sessionStorage.getItem('rsvp-pw') || ''; } catch (e) {}
+
+  async function load(){
+    const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/engagement_rsvp_list', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SUPABASE_KEY },
+      body: JSON.stringify({ p_password: password })
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.message === 'BAD_PASSWORD' ? 'That password isn\'t right.' : 'Couldn\'t load replies. Try again.');
+    return body;
+  }
+  function esc(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+  function fmt(t){ return new Date(t).toLocaleString('en-IN', { day:'numeric', month:'short', hour:'numeric', minute:'2-digit', timeZone:'Asia/Kolkata' }); }
+  function food(r){ return [DIET[r.dietary], r.dietary_notes].filter(Boolean).join(': '); }
+
+  function render(){
+    const t = data.totals;
+    $('sGuests').textContent = t.guests; $('sYes').textContent = t.attending; $('sNo').textContent = t.declined; $('sAll').textContent = t.replies;
+    const counts = {};
+    data.replies.filter(r => r.attending && r.dietary !== 'none').forEach(r => counts[r.dietary] = (counts[r.dietary] || 0) + r.guests);
+    const parts = Object.entries(counts).map(([k, n]) => `${DIET[k]}: ${n}`);
+    $('dietSummary').textContent = parts.length ? 'Food (guests): ' + parts.join(' · ') : '';
+    const q = $('q').value.trim().toLowerCase();
+    const list = data.replies.filter(r => !q || r.name.toLowerCase().includes(q) || r.phone.includes(q.replace(/\D/g, '') || '~'));
+    $('rows').innerHTML = list.length ? list.map(r => `<tr>
+      <td><b>${esc(r.name)}</b></td>
+      <td data-k="Phone"><a href="tel:${esc(r.phone)}">${esc(r.phone)}</a></td>
+      <td><span class="tag ${r.attending ? 'yes' : 'no'}">${r.attending ? 'Attending' : 'Declined'}</span></td>
+      <td class="n" data-k="Guests">${r.attending ? r.guests : '–'}</td>
+      <td data-k="Food">${esc(food(r)) || '–'}</td>
+      <td class="msg" data-k="Message">${esc(r.message) || '–'}</td>
+      <td class="when" data-k="Updated">${fmt(r.updated_at)}</td></tr>`).join('')
+      : `<tr><td colspan="7" class="empty">${data.replies.length ? 'No replies match your search.' : 'No replies yet.'}</td></tr>`;
+  }
+  async function refresh(){
+    try { data = await load(); $('login').hidden = true; $('app').hidden = false; render(); }
+    catch (err) { $('login').hidden = false; $('app').hidden = true; $('loginErr').textContent = err.message; }
+  }
+
+  $('login').addEventListener('submit', async e => {
+    e.preventDefault();
+    password = $('pw').value; $('loginErr').textContent = 'Checking…';
+    try { sessionStorage.setItem('rsvp-pw', password); } catch (e) {}
+    await refresh();
+    if (!$('app').hidden) $('loginErr').textContent = '';
+  });
+  $('refresh').addEventListener('click', refresh);
+  $('q').addEventListener('input', () => data && render());
+  $('csv').addEventListener('click', () => {
+    const head = ['Name', 'Phone', 'Reply', 'Guests', 'Food', 'Food notes', 'Message', 'First replied', 'Last updated'];
+    const cell = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+    const lines = data.replies.map(r => [r.name, r.phone, r.attending ? 'Attending' : 'Declined', r.attending ? r.guests : 0,
+      DIET[r.dietary] || '', r.dietary_notes, r.message, fmt(r.created_at), fmt(r.updated_at)].map(cell).join(','));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + [head.map(cell).join(','), ...lines].join('\r\n')], { type: 'text/csv' }));
+    a.download = 'engagement-rsvps.csv'; document.body.appendChild(a); a.click(); a.remove();
+  });
+  if (password) refresh();
+})();
+</script>
+</body>
+</html>

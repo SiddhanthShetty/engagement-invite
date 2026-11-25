@@ -123,6 +123,18 @@
   body.open .seal{opacity:0}
   body.gone .gate{display:none}
 
+  /* ---------- music button ---------- */
+  .music{position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:40;
+     width:42px;height:42px;border-radius:50%;border:1.5px solid #8a5d22;cursor:pointer;display:grid;place-items:center;padding:0;
+     background:linear-gradient(180deg,#c9a04f,#9c6e28);color:#fff8ea;box-shadow:0 3px 8px rgba(90,55,15,.35);
+     opacity:0;pointer-events:none;transition:opacity .6s 1.2s;-webkit-tap-highlight-color:transparent}
+  body.open .music{opacity:1;pointer-events:auto}
+  .music svg{width:20px;height:20px}
+  .music .off{display:none}
+  .music.muted .on{display:none}.music.muted .off{display:block}
+  .music:not(.muted)::after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1.5px solid rgba(201,160,79,.6);animation:ring 2.4s ease-out infinite}
+  @keyframes ring{0%{transform:scale(.9);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+  .music:focus-visible{outline:2px solid #fff8ea;outline-offset:3px}
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{animation-duration:.01ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
     .petals{display:none}
@@ -230,6 +242,12 @@
 
 </main>
 
+<audio id="bgm" src="assets/music.m4a" loop preload="none"></audio>
+<button class="music" id="musicBtn" type="button" aria-label="Mute music" aria-pressed="false">
+  <svg class="on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  <svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><path d="M3 3l18 18"/></svg>
+</button>
+
 <script>
 (() => {
   const body = document.body;
@@ -240,12 +258,52 @@
     if (body.classList.contains('open')) return;
     body.classList.add('open');
     startPetals();
+    startMusic();
     setTimeout(() => body.classList.add('gone'), 1500);
   }
   gate.addEventListener('click', openInvite);
   gate.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInvite(); } });
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) document.querySelectorAll('animateTransform').forEach(a => a.remove());
-  if (location.hash === '#open' || matchMedia('(prefers-reduced-motion: reduce)').matches) openInvite();
+
+  /* ---- music: "A Sacred Carnatic Wedding Melody" (NirvanaSutra Music), same as the wedding invite ---- */
+  const bgm = document.getElementById('bgm');
+  const btn = document.getElementById('musicBtn');
+  const TARGET = 0.6;
+  let wantMusic = true, fadeTimer = null;
+  try { wantMusic = localStorage.getItem('invite-music') !== 'off'; } catch (e) {}
+  function show(on){
+    btn.classList.toggle('muted', !on);
+    btn.setAttribute('aria-pressed', String(!on));
+    btn.setAttribute('aria-label', on ? 'Mute music' : 'Play music');
+  }
+  function fadeTo(v, ms, done){
+    clearInterval(fadeTimer);
+    const start = bgm.volume, t0 = performance.now();
+    fadeTimer = setInterval(() => {
+      const k = Math.min(1, (performance.now() - t0) / ms);
+      bgm.volume = start + (v - start) * k;
+      if (k === 1){ clearInterval(fadeTimer); if (done) done(); }
+    }, 40);
+  }
+  function play(){
+    bgm.volume = 0;
+    const p = bgm.play();
+    show(true);
+    if (p) p.then(() => fadeTo(TARGET, 2500)).catch(() => show(false));  // blocked until the guest taps
+    else fadeTo(TARGET, 2500);
+  }
+  function pause(){ show(false); fadeTo(0, 400, () => bgm.pause()); }
+  function startMusic(){ if (wantMusic) play(); else show(false); }
+  btn.addEventListener('click', () => {
+    wantMusic = bgm.paused || btn.classList.contains('muted');
+    try { localStorage.setItem('invite-music', wantMusic ? 'on' : 'off'); } catch (e) {}
+    wantMusic ? play() : pause();
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!body.classList.contains('open')) return;
+    if (document.hidden) { clearInterval(fadeTimer); bgm.pause(); }
+    else if (wantMusic && !btn.classList.contains('muted')) play();
+  });
 
   /* ---- falling petals ---- */
   function startPetals(){
@@ -265,6 +323,8 @@
     }
   }
 
+  // open straight away when asked to (or when motion is reduced)
+  if (location.hash === '#open' || matchMedia('(prefers-reduced-motion: reduce)').matches) openInvite();
 })();
 </script>
 </body>

@@ -36,25 +36,34 @@
   .tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
   .tools input{flex:1;min-width:180px}
   .diet{margin-top:12px;font-size:14px;color:var(--muted)}
-  table{width:100%;border-collapse:collapse;font-size:14.5px}
-  th{text-align:left;font-weight:600;color:var(--maroon);padding:8px 10px;border-bottom:1.5px solid var(--gold);white-space:nowrap}
-  td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
-  td.n{text-align:right;font-variant-numeric:tabular-nums}
-  .tag{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px}
+  /* guest list as a real table on every screen; on phones it scrolls sideways with the name column pinned */
+  .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0}
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px}
+  th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  th{font-weight:700;color:var(--maroon);background:#f3e9d6;border-bottom:1.5px solid var(--gold);white-space:nowrap;position:sticky;top:0}
+  th:not(:last-child),td:not(:last-child){border-right:1px solid rgba(180,133,58,.18)}
+  tbody tr:nth-child(even) td{background:rgba(243,233,214,.45)}
+  tbody tr:hover td{background:rgba(226,190,108,.16)}
+  td{background:rgba(251,247,239,.92)}
+  th:first-child,td:first-child{position:sticky;left:0;z-index:1;box-shadow:2px 0 4px -2px rgba(90,55,15,.25)}
+  th:first-child{z-index:2}
+  td:first-child{background:#fbf7ef}
+  tbody tr:nth-child(even) td:first-child{background:#f8f0e2}
+  td.n{text-align:center;font-variant-numeric:tabular-nums}
+  th.n{text-align:center}
+  td.nowrap{white-space:nowrap}
+  td a{color:var(--maroon);text-decoration:none;font-variant-numeric:tabular-nums}
+  td a:hover{text-decoration:underline}
+  .tag{display:inline-block;font-size:12.5px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap}
   .yes{background:#e9f2df;color:#2f5a12}.no{background:#f6e3e3;color:#7a1f1f}
-  .msg{color:var(--muted);font-size:13.5px;max-width:280px}
-  .scroll{overflow-x:auto}
+  .msg{color:var(--muted);font-size:13.5px;min-width:180px;max-width:280px}
   .empty{text-align:center;color:var(--muted);padding:24px}
   .when{color:var(--muted);font-size:13px;white-space:nowrap}
+  .card.scroll{padding:0;overflow:auto;max-height:70vh}
   @media (max-width:640px){
     .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-    thead{display:none}
-    table,tbody,tr,td{display:block;width:100%}
-    tr{border-bottom:1px solid var(--line);padding:10px 0}
-    td{border:0;padding:2px 0}
-    td.n{text-align:left}
-    td[data-k]::before{content:attr(data-k) ": ";color:var(--muted);font-weight:600}
-    .msg{max-width:none}
+    table{font-size:13.5px}
+    th,td{padding:8px 10px}
   }
 </style>
 </head>
@@ -85,7 +94,7 @@
     </div>
     <div class="card scroll">
       <table>
-        <thead><tr><th>Name</th><th>Phone</th><th>Reply</th><th>Guests</th><th>Food</th><th>Message</th><th>Updated</th></tr></thead>
+        <thead><tr><th>Name</th><th>Phone</th><th>Reply</th><th class="n">Guests</th><th>Food</th><th>Message</th><th>Updated</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
@@ -124,13 +133,13 @@
     const q = $('q').value.trim().toLowerCase();
     const list = data.replies.filter(r => !q || r.name.toLowerCase().includes(q) || r.phone.includes(q.replace(/\D/g, '') || '~'));
     $('rows').innerHTML = list.length ? list.map(r => `<tr>
-      <td><b>${esc(r.name)}</b></td>
-      <td data-k="Phone"><a href="tel:${esc(r.phone)}">${esc(r.phone)}</a></td>
+      <td class="nowrap"><b>${esc(r.name)}</b></td>
+      <td class="nowrap"><a href="tel:${esc(r.phone)}">${esc(r.phone)}</a></td>
       <td><span class="tag ${r.attending ? 'yes' : 'no'}">${r.attending ? 'Attending' : 'Declined'}</span></td>
-      <td class="n" data-k="Guests">${r.attending ? r.guests : '–'}</td>
-      <td data-k="Food">${esc(food(r)) || '–'}</td>
-      <td class="msg" data-k="Message">${esc(r.message) || '–'}</td>
-      <td class="when" data-k="Updated">${fmt(r.updated_at)}</td></tr>`).join('')
+      <td class="n">${r.attending ? r.guests : '–'}</td>
+      <td class="nowrap">${esc(food(r)) || '–'}</td>
+      <td class="msg">${esc(r.message) || '–'}</td>
+      <td class="when">${fmt(r.updated_at)}</td></tr>`).join('')
       : `<tr><td colspan="7" class="empty">${data.replies.length ? 'No replies match your search.' : 'No replies yet.'}</td></tr>`;
   }
   async function refresh(){

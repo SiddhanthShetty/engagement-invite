@@ -111,7 +111,7 @@
   .door.l{box-shadow:inset -10px 0 22px rgba(0,0,0,.35)}
   .door.r{box-shadow:inset 10px 0 22px rgba(0,0,0,.35)}
   .seal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;transition:opacity .5s}
-  /* gold wax seal with the ruby SS monogram (assets/seal-logo.webp); the shadow follows the wax edge */
+  /* all-gold wax seal with the SS monogram (assets/seal-gold.webp); the shadow follows the wax edge */
   .seal .ring{position:relative;display:block;width:184px;height:184px;margin:0 auto}
   .seal .ring img{display:block;width:100%;height:100%;
      filter:drop-shadow(0 2px 2px rgba(0,0,0,.5)) drop-shadow(3px 10px 16px rgba(0,0,0,.45))}
@@ -123,7 +123,7 @@
   .seal .shine{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;
      background:linear-gradient(112deg,transparent 38%,rgba(255,236,190,.0) 42%,rgba(255,240,205,.42) 50%,rgba(255,236,190,0) 58%,transparent 62%);
      background-size:260% 100%;background-position:130% 0;
-     -webkit-mask:url(assets/seal-logo.webp) center/contain no-repeat;mask:url(assets/seal-logo.webp) center/contain no-repeat;
+     -webkit-mask:url(assets/seal-gold.webp) center/contain no-repeat;mask:url(assets/seal-gold.webp) center/contain no-repeat;
      animation:shine 9s ease-in-out 1.45s infinite}
   .seal p{animation:textIn 1s ease .45s both}
   .seal .tap{animation:textIn 1s ease .65s both,breathe 3.2s ease-in-out 2s infinite}
@@ -217,7 +217,7 @@
 <div class="gate" id="gate" role="button" tabindex="0" aria-label="Open the invitation">
   <div class="door l"></div><div class="door r"></div>
   <div class="seal">
-    <span class="ring"><img src="assets/seal-logo.webp" width="184" height="184" alt="SS monogram wax seal"><span class="shine" aria-hidden="true"></span></span>
+    <span class="ring"><img src="assets/seal-gold.webp" width="184" height="184" alt="SS monogram wax seal"><span class="shine" aria-hidden="true"></span></span>
     <p>You're invited</p>
     <div class="tap">TAP TO OPEN</div>
   </div>

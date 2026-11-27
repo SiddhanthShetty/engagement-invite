@@ -127,3 +127,13 @@ grant execute on function public.engagement_rsvp_list(text) to anon, authenticat
 
 -- 2026-11-26: no reply deadline. Migration "engagement_rsvp_no_deadline" made respond_by nullable
 -- and set it to null, so submit_engagement_rsvp never closes. Set a date again to close replies.
+
+-- 2026-11-27: engagement enhancements
+--  * engagement_rsvps_backup_20261127: a copy of the replies taken before these changes
+--    (RLS on, no grants, so it is not readable through the API).
+--  * normalize_engagement_phone(text): Indian numbers (10 digits, +91, 91, 0 or 091 prefix) are stored
+--    as 10 digits exactly as before; other countries as +<country code><number>; anything else is rejected.
+--  * submit_engagement_rsvp now uses normalize_engagement_phone (same signature, same behaviour for India).
+--  * engagement_rsvp_info(): public, read-only { respond_by, closed, max_guests } for the form.
+--    To set a deadline:   update public.engagement_rsvp_settings set respond_by = '2026-12-03' where id = 1;
+--    To remove it again:  update public.engagement_rsvp_settings set respond_by = null where id = 1;
